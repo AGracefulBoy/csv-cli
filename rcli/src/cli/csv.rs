@@ -1,3 +1,4 @@
+use std::fmt::{write, Display, Formatter};
 use clap::Parser;
 use std::str::FromStr;
 
@@ -29,6 +30,16 @@ fn parse_format(format: &str) -> Result<OutputFormat, anyhow::Error> {
     format.parse()
 }
 
+
+impl From<OutputFormat> for &'static str {
+    fn from(value: OutputFormat) -> Self {
+        match value {
+            OutputFormat::Json => "json",
+            OutputFormat::Yaml => "yaml",
+        }
+    }
+}
+
 impl FromStr for OutputFormat {
     type Err = anyhow::Error;
 
@@ -37,5 +48,11 @@ impl FromStr for OutputFormat {
             "json" => Ok(OutputFormat::Json),
             _ => Ok(OutputFormat::Yaml)
         }
+    }
+}
+
+impl Display for OutputFormat {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", Into::<&'static str>::into(*self))
     }
 }
