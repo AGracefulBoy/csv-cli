@@ -2,4 +2,4 @@
 simple rust csv-cli
 
 # 介绍
-个人联系小demo
+个人练习小demo
