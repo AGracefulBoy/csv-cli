@@ -12,3 +12,8 @@ cargo run -- csv -i assets/juventus.csv
 ````
 cargo run -- genpass -l 8
 ````
+
+base64 encode
+````
+cargo run -- base64 encode
+````
