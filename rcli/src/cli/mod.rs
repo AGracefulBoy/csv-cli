@@ -2,11 +2,13 @@ mod csv;
 mod genpass;
 mod base64;
 mod text;
+mod http;
 
 use std::path::{Path, PathBuf};
 use clap::Parser;
 pub use csv::*;
 use crate::cli::genpass::GenPassOpts;
+pub use crate::cli::http::HttpSubCommand;
 pub use crate::cli::text::TextSubCommand;
 pub use self::base64::Base64Format;
 pub use self::base64::Base64SubCommand;
@@ -32,6 +34,9 @@ pub enum SubCommand {
 
     #[command(subcommand,about = "Text sign/verify")]
     Text(TextSubCommand),
+
+    #[command(subcommand,about = "HTTP Server")]
+    Http(HttpSubCommand),
 }
 
 fn verify_file(filename: &str) -> Result<String,&'static str> {

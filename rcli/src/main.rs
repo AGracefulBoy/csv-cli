@@ -1,12 +1,10 @@
+use base64::prelude::BASE64_URL_SAFE_NO_PAD;
+use base64::Engine;
 use clap::Parser;
-use rcli::{process_csv, process_decode, process_encode, process_genpass, process_text_sign, process_text_verifier,process_text_key_generate, Base64SubCommand, Opts, SubCommand, TextSignFormat, TextSubCommand};
-use std::str::FromStr;
+use rcli::{process_csv, process_decode, process_encode, process_genpass, process_text_key_generate, process_text_sign, process_text_verifier, Base64SubCommand, HttpSubCommand, Opts, SubCommand, TextSignFormat, TextSubCommand};
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
-use std::path::Path;
-use base64::Engine;
-use base64::prelude::BASE64_URL_SAFE_NO_PAD;
 
 fn main() -> anyhow::Result<()> {
     let opts = Opts::parse();
@@ -44,14 +42,14 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     Box::new(BufReader::new(File::open(&opt.input)?))
                 };
-                
+
                 let key_data = std::fs::read(&opt.key)?;
-                
+
                 let signature = match opt.format {
                     TextSignFormat::Blake3 => process_text_sign(&mut reader, &key_data, opt.format)?,
                     TextSignFormat::Ed25519 => process_text_sign(&mut reader, &key_data, opt.format)?,
                 };
-                
+
                 let sig_base64 = BASE64_URL_SAFE_NO_PAD.encode(&signature);
                 println!("{}", sig_base64);
                 Ok(())
@@ -62,15 +60,15 @@ fn main() -> anyhow::Result<()> {
                 } else {
                     Box::new(BufReader::new(File::open(&opt.input)?))
                 };
-                
+
                 let key_data = std::fs::read(&opt.key)?;
                 let sig_data = BASE64_URL_SAFE_NO_PAD.decode(&opt.sig)?;
-                
+
                 let result = match opt.format {
                     TextSignFormat::Blake3 => process_text_verifier(&mut reader, &key_data, &sig_data, opt.format)?,
                     TextSignFormat::Ed25519 => process_text_verifier(&mut reader, &key_data, &sig_data, opt.format)?,
                 };
-                
+
                 println!("{}", if result { "Valid signature" } else { "Invalid signature" });
                 Ok(())
             }
@@ -78,6 +76,13 @@ fn main() -> anyhow::Result<()> {
                 let keys = process_text_key_generate(opt.input)?;
                 // TODO: Save keys to output_path
                 println!("Keys generated: {:?}", keys);
+                Ok(())
+            }
+        }
+
+        SubCommand::Http(subcmd) => match subcmd {
+            HttpSubCommand::Serve(subcmd) => {
+                println!("subcmd {:?}", subcmd);
                 Ok(())
             }
         }
